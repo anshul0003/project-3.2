@@ -1,0 +1,53 @@
+document.addEventListener('DOMContentLoaded', async () => {
+    if (window.ethereum) {
+        window.web3 = new Web3(window.ethereum);
+        await window.ethereum.enable();
+    } else {
+        console.error('Web3 provider not detected. Please install MetaMask.');
+    }
+
+    const contractAddress = 'YOUR_CONTRACT_ADDRESS'; // Replace with your deployed contract address
+    const abi = [
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "_message",
+                    "type": "string"
+                }
+            ],
+            "name": "setMessage",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "getMessage",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ];
+
+    const simpleStorageContract = new web3.eth.Contract(abi, contractAddress);
+
+    
+    window.setMessage = async () => {
+        const message = document.getElementById('messageInput').value;
+        await simpleStorageContract.methods.setMessage(message).send({ from: web3.currentProvider.selectedAddress });
+        console.log('Message set:', message);
+    };
+    window.getMessage = async () => {
+        const message = await simpleStorageContract.methods.getMessage().call();
+        document.getElementById('messageDisplay').innerText = 'Current Message: ' + message;
+    };
+});
